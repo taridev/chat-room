@@ -10,6 +10,9 @@ var messageInput = document.querySelector('#message');
 var messageArea = document.querySelector('#messageArea');
 var connectingElement = document.querySelector('.connecting');
 var roomIdDisplay = document.querySelector('#room-id-display');
+/* Ajout */
+var listUsers = document.querySelector('#listUsers');
+var listChannels = document.querySelector('#listChannels');
 
 var stompClient = null;
 var currentSubscription;
@@ -28,6 +31,9 @@ function connect(event) {
     if (username) {
         usernamePage.classList.add('hidden');
         chatPage.classList.remove('hidden');
+        listUsers.classList.remove('hidden');
+        listChannels.classList.remove('hidden');
+
 
         var socket = new SockJS('/ws');
         stompClient = Stomp.over(socket);
@@ -39,6 +45,20 @@ function connect(event) {
 
 // Leave the current room and enter a new one.
 function enterRoom(newRoomId) {
+    var avatarBig = document.createElement('img');
+    avatarBig.src = "https://i.imgur.com/XRUTQ3r.png";
+    avatarBig.classList.add('avatarBig');
+    listChannels.appendChild(avatarBig);
+
+    var userBigName = document.createElement('h2');
+    userBigName.classList.add('userBigName');
+
+    var textUserName = document.createTextNode(username);
+    userBigName.appendChild(textUserName);
+    listChannels.appendChild(userBigName);
+
+
+
     roomId = newRoomId;
     Cookies.set('roomId', roomId);
     roomIdDisplay.textContent = roomId;
@@ -99,10 +119,9 @@ function onMessageReceived(payload) {
     } else {
         messageElement.classList.add('chat-message');
 
-        var avatarElement = document.createElement('i');
-        var avatarText = document.createTextNode(message.sender[0]);
-        avatarElement.appendChild(avatarText);
-        avatarElement.style['background-color'] = getAvatarColor(message.sender);
+        var avatarElement = document.createElement('img');
+        avatarElement.classList.add('avatarImg');
+        avatarElement.src = "https://i.imgur.com/XRUTQ3r.png";
 
         messageElement.appendChild(avatarElement);
 
