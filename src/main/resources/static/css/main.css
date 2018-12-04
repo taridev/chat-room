@@ -19,6 +19,7 @@ body {
     color: #333;
     background-color: #f4f4f4;
     height: 100%;
+    flex-wrap: wrap;
 }
 
 body:before {
@@ -136,17 +137,19 @@ button.accent {
 #chat-page {
     position: relative;
     height: 100%;
+
 }
 
+
 .chat-container {
-    max-width: 700px;
+    max-width: 800px;
     margin-left: auto;
     margin-right: auto;
     background-color: #fff;
     box-shadow: 0 1px 11px rgba(0, 0, 0, 0.27);
-    margin-top: 30px;
-    height: calc(100% - 60px);
-    max-height: 600px;
+
+    max-height: 100%;
+    height: 100%;
     position: relative;
 }
 
@@ -158,6 +161,10 @@ button.accent {
     overflow-y: scroll;
     padding: 0 20px 0px 20px;
     height: calc(100% - 150px);
+}
+
+.wrap{
+    flex-wrap: wrap;
 }
 
 #chat-page #messageForm {
