@@ -19,6 +19,7 @@ var stompClient = null;
 var currentSubscription;
 var username = null;
 var roomId = null;
+var room = null;
 var topic = null;
 var user = null;
 
@@ -74,8 +75,25 @@ function enterRoom(newRoomId) {
 
     roomId = newRoomId;
     Cookies.set('roomId', roomId);
-    roomIdDisplay.textContent = roomId;
     topic = `/app/chat/${newRoomId}`;
+
+
+
+    $.ajax({
+        type: "GET",
+        contentType : "application/json",
+        dataType: "json",
+        url: `/room/${roomId}`,
+        success: function (result) {
+            room = result;
+        },
+        error: function(e) {
+            console.log('oups');
+        },
+        async:false
+    });
+
+    roomIdDisplay.textContent = room.name;
 
     if (currentSubscription) {
         currentSubscription.unsubscribe();
