@@ -18,7 +18,6 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.StringUtils;
 
 import java.util.Date;
 
@@ -56,7 +55,6 @@ public class ChatController {
     }
 
     @MessageMapping("/chat/{roomId}/addUser")
-    // @SendTo("/channel/{roomId}")
     public void addUser(@DestinationVariable String roomId, @Payload ChatMessage chatMessage,
                         SimpMessageHeaderAccessor headerAccessor) {
         String currentRoomId = (String) headerAccessor.getSessionAttributes().put("room_id", roomId);

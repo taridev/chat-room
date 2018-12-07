@@ -36,6 +36,30 @@ function connect(event) {
         listUsers.classList.remove('hidden');
         userInfos.classList.remove('hidden');
 
+        $.ajax({
+            type: "GET",
+            contentType : "application/json",
+            dataType: "json",
+            url: `/user/${username}`,
+            success: function (result) {
+                user = result;
+            },
+            error: function(e) {
+                console.log('oups');
+            },
+            async:false
+        });
+
+
+
+        avatarBig.classList.add('avatarBig');
+        avatarBig.src = user.image;
+        userInfos.appendChild(avatarBig);
+        var userBigName = document.createElement('h2');
+        userBigName.classList.add('userBigName');
+        var textUserName = document.createTextNode(username);
+        userBigName.appendChild(textUserName);
+        userInfos.appendChild(userBigName);
 
         var socket = new SockJS('/ws');
         stompClient = Stomp.over(socket);
@@ -47,17 +71,6 @@ function connect(event) {
 
 // Leave the current room and enter a new one.
 function enterRoom(newRoomId) {
-    avatarBig.classList.add('avatarBig');
-    userInfos.innerHTML = '';
-    userInfos.appendChild(avatarBig);
-    var userBigName = document.createElement('h2');
-    userBigName.classList.add('userBigName');
-
-    var textUserName = document.createTextNode(username);
-    userBigName.appendChild(textUserName);
-    userInfos.appendChild(userBigName);
-
-
 
     roomId = newRoomId;
     Cookies.set('roomId', roomId);
@@ -136,11 +149,9 @@ function onMessageReceived(payload) {
         dateElement.appendChild(dateText);
         messageElement.appendChild(usernameElement);
         usernameElement.appendChild(dateElement);
-        avatarBig.src = message.sender.image;
-        avatarBig.classList.add('avatarBig');
 
     }
-    var messageText = null
+    var messageText = null;
     var textElement = document.createElement('p');
     if (message.type == 'LEAVE' || message.type == 'JOIN') {
         var avatar = document.createElement('img');
