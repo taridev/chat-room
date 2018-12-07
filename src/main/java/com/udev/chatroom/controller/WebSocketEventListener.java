@@ -1,6 +1,9 @@
 package com.udev.chatroom.controller;
 
 import com.udev.chatroom.model.ChatMessage;
+import com.udev.chatroom.model.User;
+import com.udev.chatroom.service.ChatMessageService;
+import com.udev.chatroom.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,12 @@ public class WebSocketEventListener {
     @Autowired
     private SimpMessageSendingOperations messagingTemplate;
 
+    @Autowired
+    private ChatMessageService messageService;
+
+    @Autowired
+    private UserService userService;
+
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectedEvent event) {
         logger.info("Received a new web socket connection");
@@ -29,12 +38,13 @@ public class WebSocketEventListener {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
 
         String username = (String) headerAccessor.getSessionAttributes().get("username");
-        if(username != null) {
+        User user = userService.findByUsername(username);
+        if(user != null) {
             logger.info("User Disconnected : " + username);
 
             ChatMessage chatMessage = new ChatMessage();
             chatMessage.setType(ChatMessage.MessageType.LEAVE);
-            chatMessage.setSender(username);
+            chatMessage.setSender(user);
 
             messagingTemplate.convertAndSend("/topic/public", chatMessage);
         }

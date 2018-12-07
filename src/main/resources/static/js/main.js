@@ -12,13 +12,15 @@ var connectingElement = document.querySelector('.connecting');
 var roomIdDisplay = document.querySelector('#room-id-display');
 /* Ajout */
 var listUsers = document.querySelector('#listUsers');
-var listChannels = document.querySelector('#listChannels');
+var userInfos = document.querySelector('#userInfos');
+var avatarBig = document.createElement('img');
 
 var stompClient = null;
 var currentSubscription;
 var username = null;
 var roomId = null;
 var topic = null;
+var user = null;
 
 var colors = [
     '#2196F3', '#32c787', '#00BCD4', '#ff5652',
@@ -32,7 +34,7 @@ function connect(event) {
         usernamePage.classList.add('hidden');
         chatPage.classList.remove('hidden');
         listUsers.classList.remove('hidden');
-        listChannels.classList.remove('hidden');
+        userInfos.classList.remove('hidden');
 
 
         var socket = new SockJS('/ws');
@@ -45,17 +47,15 @@ function connect(event) {
 
 // Leave the current room and enter a new one.
 function enterRoom(newRoomId) {
-    var avatarBig = document.createElement('img');
-    avatarBig.src = "https://i.imgur.com/XRUTQ3r.png";
     avatarBig.classList.add('avatarBig');
-    listChannels.appendChild(avatarBig);
-
+    userInfos.innerHTML = '';
+    userInfos.appendChild(avatarBig);
     var userBigName = document.createElement('h2');
     userBigName.classList.add('userBigName');
 
     var textUserName = document.createTextNode(username);
     userBigName.appendChild(textUserName);
-    listChannels.appendChild(userBigName);
+    userInfos.appendChild(userBigName);
 
 
 
@@ -97,7 +97,8 @@ function sendMessage(event) {
         var chatMessage = {
             sender: username,
             content: messageInput.value,
-            type: 'CHAT'
+            type: 'CHAT',
+            createdAt: new Date()
         };
         stompClient.send(`${topic}/sendMessage`, {}, JSON.stringify(chatMessage));
     }
@@ -112,27 +113,45 @@ function onMessageReceived(payload) {
 
     if (message.type == 'JOIN') {
         messageElement.classList.add('event-message');
-        message.content = message.sender + ' joined!';
+        message.content = message.sender.username + ' a rejoint la discussion !';
     } else if (message.type == 'LEAVE') {
         messageElement.classList.add('event-message');
-        message.content = message.sender + ' left!';
+        message.content = message.sender.username + ' a quitté la discussion !';
     } else {
         messageElement.classList.add('chat-message');
 
         var avatarElement = document.createElement('img');
         avatarElement.classList.add('avatarImg');
-        avatarElement.src = "https://i.imgur.com/XRUTQ3r.png";
+        avatarElement.src = message.sender.image;
 
         messageElement.appendChild(avatarElement);
 
-        var usernameElement = document.createElement('span');
-        var usernameText = document.createTextNode(message.sender);
-        usernameElement.appendChild(usernameText);
-        messageElement.appendChild(usernameElement);
-    }
+        var date = new Date(message.createdAt).toLocaleString('fr-FR', {timezone: 'UTC'});
 
+        var usernameElement = document.createElement('span');
+        var dateElement = document.createElement('span');
+        var usernameText = document.createTextNode(message.sender.username);
+        var dateText = document.createTextNode(' - ' + date);
+        usernameElement.appendChild(usernameText);
+        dateElement.appendChild(dateText);
+        messageElement.appendChild(usernameElement);
+        usernameElement.appendChild(dateElement);
+        avatarBig.src = message.sender.image;
+        avatarBig.classList.add('avatarBig');
+
+    }
+    var messageText = null
     var textElement = document.createElement('p');
-    var messageText = document.createTextNode(message.content);
+    if (message.type == 'LEAVE' || message.type == 'JOIN') {
+        var avatar = document.createElement('img');
+        avatar.src = message.sender.image;
+        avatar.style.width = '20px';
+        textElement.style.verticalAlign = 'middle';
+        messageText = document.createTextNode('  ' + message.content);
+        textElement.appendChild(avatar);
+    } else {
+        messageText = document.createTextNode(message.content);
+    }
     textElement.appendChild(messageText);
 
     messageElement.appendChild(textElement);
